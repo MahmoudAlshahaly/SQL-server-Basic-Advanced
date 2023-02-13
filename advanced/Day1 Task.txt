@@ -1,0 +1,84 @@
+create table Department(
+DeptNo int primary key,
+DeptName varchar(20),
+Location varchar(2)
+)
+
+create table Employee
+(
+EmpNo int,
+EmpFname varchar(20) not null,
+EmpLname varchar(20) not null,
+DeptNo int ,
+Salary real,
+constraint c1 primary key (EmpNo),
+constraint c2 foreign key (DeptNo) references company.Department(DeptNo),
+constraint c3 unique (Salary),
+--constraint c4  check(Salary <6000)
+)
+
+create rule		r1 as @x<6000
+sp_bindrule r1,'HumanResource.Employee.Salary'
+
+CREATE schema HumanResource
+CREATE schema company
+
+--------------------------------------------------
+
+alter schema company transfer Department
+alter schema HumanResource  transfer Employee
+
+
+--------------------------------------------------
+SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE TABLE_NAME='HumanResource.Employee';
+
+---------------------------------------------------
+create synonym emp  for HumanResource.Employee
+
+	Select * from Employee -- invalid
+	Select * from HumanResource.Employee -- run
+	Select * from emp -- run
+	Select * from HumanResource.emp  -- invalid 
+
+--------------------------------------------------
+
+update Company.Project
+set Budget=Budget+.1*Budget
+
+where ProjectNo in (
+select ProjectNo from Works_on
+where EmpNo=10102 
+)  
+-------------------------------------------------------
+
+update Company.Department
+set DeptName='Sales'
+where DeptNo in (
+select DeptNo from HR.Employee
+where EmpFname='James'
+)
+
+-------------------------------------------------------
+update Works_on
+set Enter_Date='12.12.2007'
+where ProjectNo='p1'
+and EmpNo in (select EmpNo from HR.Employee inner join Company.Department
+on HR.Employee.DeptNo=Company.Department.DeptNo
+where Company.Department.DeptName='Sales'
+)
+-------------------------------------------------------
+
+delete from Works_on
+where EmpNo in (
+select * from Company.Department inner join  HR.Employee 
+on Comapny.Department.DeptNo=HR.Employee.DeptNo
+where Comapny.Department.Location='KW'
+)
+-------------------------------------------------------
+
+select *from Company.Project
+select *from Works_on
+select * from HR.Employee
+select *from Company.Department

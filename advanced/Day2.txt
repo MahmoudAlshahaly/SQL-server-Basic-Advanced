@@ -1,0 +1,132 @@
+
+
+
+
+create function getMonth(@date date) 
+returns varchar(20)
+	begin
+		declare @month varchar(20)
+	    SELECT  @month = DATENAME(month, @date) 
+		return @month
+	end
+
+--calling
+select dbo.getMonth(GETDATE())
+
+
+-----------------------------------------------------------------
+create function getNumBetween(@start int,@end int)
+returns @t table
+			(
+			 num int
+			)
+as
+
+begin
+	while (@start <= @end)
+	  begin
+			insert into @t 
+			select @start
+		   set	@start = @start + 1;
+		
+	  end
+	  return
+end
+
+--calling
+select * from getNumBetween(5,10)
+
+
+
+
+------------------------------------------------------------------
+create function getFullNameWithDepartment(@Empid int)
+returns table
+as
+	return 
+		(
+		 select Employee.EmpFname +''+ Employee.EmpLname   as name , Department.DeptName as dept
+		 from Employee,Department where Employee.DeptNo =Department.DeptNo and EmpNo=@Empid
+		  
+		)
+
+select * from getFullNameWithDepartment(2581)
+
+
+------------------------------------------------------------------
+create function getMessage(@Empid int) 
+returns varchar(50)
+	begin
+		declare @fname nvarchar(50)
+		declare @lname nvarchar(50)
+		select  @fname=Employee.EmpFname ,  @lname=Employee.EmpLname  from Employee where  EmpNo=@Empid
+	   
+	   	if (@fname is null and @lname is null )
+			return 'first name and last name are null'
+		else if (@fname is null)
+			return 'first name is null'
+		else if (@lname is null)
+		    return 'last name is null'
+		
+
+		 return 'fname and last name are not null'
+		
+	end
+
+--calling
+select dbo.getMessage(29346)
+
+
+-------------------------------------------------------------------
+create function getEmpNameSalary(@Empid int)
+returns table
+as
+	return 
+		(
+		 select Employee.EmpFname +''+ Employee.EmpLname   as name ,Employee.Salary as salary, Department.DeptName  as dept
+		 from Employee,Department where Employee.DeptNo =Department.DeptNo and EmpNo=@Empid
+		  
+		)
+
+select * from getEmpNameSalary(2581)
+
+--------------------------------------------------------------------
+create function getEmployeeData(@str varchar(20)) 
+returns @t table
+       (
+	   name varchar(20)
+	   )
+as
+	begin
+	 if(@str ='first name')
+	 insert into @t
+	 	select  Employee.EmpFname from Employee 
+	   else if(@str = 'last name')
+	    insert into @t
+	   	select  Employee.EmpLname  from Employee 
+	   
+	   else if(@str ='full name')
+	    insert into @t
+	   	select  Employee.EmpFname +''+Employee.EmpLname  from Employee
+	   
+	 return
+	end
+	
+
+--calling
+select * from  dbo.getEmployeeData('first name')
+
+
+---------------------------------------------------------------------------------
+
+select Employee.EmpNo ,SUBSTRING(Employee.EmpFname,0,LEN(Employee.EmpFname)) from Employee
+
+-------------------------------------------------------------------------
+
+delete from stucourse
+where stud_id in 
+(
+select stud_id from student inner join department 
+on srudent.dept_id=department.dept_id
+where dept_name=N'SD'
+)
