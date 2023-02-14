@@ -1,0 +1,183 @@
+
+
+create view StuFullName
+as
+select  St_Fname+''+St_Lname as 'Full Name' from student,Stud_Course 
+WHERE student.St_Id=Stud_Course.St_Id and Grade > 50
+GO
+-----------------------------------------------------------------------------------------
+create view InstructorNameWithTopics
+with encryption
+as 
+select distinct Ins_Name,Top_Name
+from  Instructor ,Ins_Course ,course,Topic
+where Instructor.Ins_Id=Ins_Course.Ins_Id
+and Ins_Course.Crs_Id=Course.Crs_Id
+and course.Top_Id=topic.Top_Id
+
+select * from InstructorNameWithTopics
+
+-------------------------------------------------------------------------------------------
+create view InstructorWithDeprtment
+as
+select  Ins_Name, Dept_Name from Department,Instructor 
+where Instructor.Dept_Id=Department.Dept_Id and Dept_Name in ('Java','SD')
+GO
+
+-----------------------------------------------------------------------------------------
+
+create view studentData
+as 
+select * from Student where  St_Address in ('alex','cairo')
+with check option
+GO
+
+-----------------------------------------------------------------------------------------
+
+use SD
+create view projectWithNumOfEmp
+as 
+select ProjectName ,count(EmpFname) from Employee,Works_on,Project
+where Project.ProjectNo=Works_on.ProjectNo and Employee.EmpNo=Works_on.EmpNo
+group by ProjectName 
+GO
+
+select * from projectWithNumOfEmp
+
+
+-----------------------------------------------------------------------------------------
+
+
+we have already clusted index in primarykey  that cause error
+
+
+-----------------------------------------------------------------------------------------
+
+when create unique  nonclusterd index in age  cause error because of duplication in data that stord before
+
+-------------------------------------------------------
+
+merge into Last as T
+using Daily as S
+on T.UserID=S.UserID
+when matched then
+update 
+set T.TransactionAmount=S.TransactionAmount
+when not matched then 
+insert
+values(S.UserID,S.TransactionAmount);
+
+
+---------------------------------------------------------------------------
+
+use SD
+
+create view  v_clerk
+as 
+
+select   Employee.empNo, project.projectNo, works_on.enter_date
+from  Employee ,  works_on, project
+where .Employee.empNo= works_on.empNo
+and  . works_on.projectNo= project.projectNo
+and . works_on.job='clerk'
+
+
+select * from v_clerk
+
+
+----------------------------------------------------------------------------------
+
+create view Projectwithoutbudget
+as
+select project.projectNo,project.projectName from project
+
+select * from Projectwithoutbudget
+
+
+-----------------------------------------------------------------------------------
+
+
+create view CalcuCount
+as
+select project.projectName,count(works_on.job) as coun
+from project , works_on
+where project.projectNo=works_on.projectNo
+group by project.projectName
+
+select * from CalcuCount
+
+-------------------------------------------------------------------------------------
+
+CREATE view projectnUM2
+as
+select EmpNo
+from v_clerk
+where projectNo=2
+
+select * from projectnUM2
+
+
+-----------------------------------------------------------------------------------------
+
+create view withoutbudget
+as
+select project.projectNo,project.projectName
+from project
+where project.projectNo in (1,2)
+
+select * from withoutbudget
+
+
+-------------------------------------------------------------------------------------------
+
+
+drop VIEW v_clerk
+drop view CalcuCount
+-------------------------------------------------------------------------------------------
+
+
+create view EmpName
+as
+select Employee.empNo, Employee.empLname
+from Employee ,Department
+where Employee.deptNo = Department.DeptNo
+and Department.deptNo= 2
+
+select * from EmpName
+
+
+------------------------------------------------------------------------------------------
+
+select emplname from EmpName where emplname like '%j%'
+
+------------------------------------------------------------------------------
+create view v_dept
+as
+select Department.deptNo , Department.deptName
+from Department
+
+select * from v_dept
+
+------------------------------------------------------------------------------
+
+
+insert into v_dept
+values ('development')
+
+-------------------------------------------------------------------------------
+
+create view v_2006_check
+as
+select works_on.empNo,works_on.projectNo,works_on.enter_date
+from works_on
+where enter_date between '2007.1.1' and '2007.12.30'
+with check option 
+
+select * from v_2006_check 
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------
