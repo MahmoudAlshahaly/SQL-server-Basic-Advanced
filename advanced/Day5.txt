@@ -1,0 +1,83 @@
+USE Company
+
+declare c1 cursor 
+for select Salary
+	from Employee
+for update
+declare @updatedSalary int 
+open c1
+fetch c1 into @updatedSalary
+while @@FETCH_STATUS=0
+	begin
+		if @updatedSalary < 3000
+			update Employee
+				set Salary *= 1.1 
+			where current of c1
+		else if @updatedSalary >= 3000
+			update Employee
+				set Salary *= 1.2
+			where current of c1
+		fetch c1 into @updatedSalary
+	end
+close c1
+deallocate c1
+
+-----------------------------------------------------------------
+
+USE ITI
+GO
+
+declare c2 cursor 
+for select Instructor.Ins_Name, Department.Dept_Name
+	from Instructor , Department 
+	where Instructor.Dept_Id = Department.Dept_Id
+for read only 
+declare @insName varchar(20), @deptName varchar(20), @result varchar(40)
+open c2
+fetch c2 into @insName, @deptName
+while @@FETCH_STATUS=0
+	begin
+		select @result = concat(@insName, ': ', @deptName) 
+		fetch c2 into @insName, @deptName
+		select @result as Inst_Dept
+	end
+close c2
+deallocate c2
+
+-----------------------------------------------------------------
+declare c3 cursor
+for select St_Fname
+	from Student
+	where St_Fname is not null
+for read only 
+declare @stName varchar(20), @allNames varchar(200)
+open c3
+fetch c3 into @stName
+while @@FETCH_STATUS=0
+	begin
+		select @allNames = concat(ISNULL(@allNames, ' '), ',', @stName)
+		fetch c3 into @stName
+	end
+select @allNames as AllNames
+close c3
+deallocate c3
+
+
+-----------------------------------------------------------------
+
+create sequence IDSEQUENCE
+Start with 1
+INCREMENT by 1
+Minvalue 1
+Maxvalue 10
+NO CYCLE
+
+drop sequence IDSEQUENCE
+create table test
+	(
+		ID int,
+		Full_Name varchar(20)
+	)
+
+insert into test
+	VALUES(NEXT Value for IDSEQUENCE, 'mahmoud')
